@@ -25,6 +25,10 @@ namespace TechTreeMVCApplication.Areas.Admin.Controllers
         public async Task<IActionResult> Index(int categoryId)
         {
             List<CategoryItem> list = await (from cartItem in _context.CategoryItem
+                                             join contentItem in _context.Content
+                                             on cartItem.Id equals contentItem.CategoryItem.Id
+                                             into gj
+                                             from subContent in gj.DefaultIfEmpty()
                                              where cartItem.CategoryId == categoryId
                                              select new CategoryItem
                                              {
@@ -33,7 +37,8 @@ namespace TechTreeMVCApplication.Areas.Admin.Controllers
                                                  Description = cartItem.Description,
                                                  DateTimeItemReleased = cartItem.DateTimeItemReleased,
                                                  MediaTypeId = cartItem.MediaTypeId,
-                                                 CategoryId = categoryId
+                                                 CategoryId = categoryId,
+                                                 ContentId = (subContent != null) ? subContent.Id : 0
                                              }).ToListAsync();
 
             ViewBag.CategoryId = categoryId;
