@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Linq;
 using System.Threading.Tasks;
 using TechTreeMVCApplication.Data;
@@ -12,19 +13,19 @@ using TechTreeMVCApplication.Models;
 
 namespace TechTreeMVCApplication.Controllers
 {
-    public class UserAuth : Controller
+    public class UserAuthController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ApplicationDbContext _context;
 
-        public UserAuth(ApplicationDbContext context,
-                        SignInManager<ApplicationUser> signInManager,
-                        UserManager<ApplicationUser> userManager)
+        public UserAuthController(ApplicationDbContext context,
+                                  UserManager<ApplicationUser> userManager,
+                                  SignInManager<ApplicationUser> signInManager)
         {
-            this._context = context;
-            this._signInManager = signInManager;
-            this._userManager = userManager;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _context = context;
         }
 
         [AllowAnonymous]
@@ -59,6 +60,46 @@ namespace TechTreeMVCApplication.Controllers
                 return LocalRedirect(returnUrl);
             else
                 return RedirectToAction("Index", "Home");
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RegisterUser(RegistrationModel registrationModel)
+        {
+            registrationModel.RegistrationInValid = "true";
+
+            if (ModelState.IsValid)
+            {
+                ApplicationUser user = new ApplicationUser
+                {
+                    UserName = registrationModel.Email,
+                    Email = registrationModel.Email,
+                    PhoneNumber = registrationModel.PhoneNumber,
+                    FirstName = registrationModel.FirstName,
+                    LastName = registrationModel.LastName,
+                    Address1 = registrationModel.Address1,
+                    Address2 = registrationModel.Address2,
+                    PostCode = registrationModel.PostCode
+
+                };
+
+                var result = await _userManager.CreateAsync(user, registrationModel.Password);
+
+                if (result.Succeeded)
+                {
+                    registrationModel.RegistrationInValid = "";
+
+                    await _signInManager.SignInAsync(user, isPersistent: false);
+
+                    return PartialView("_UserRegistrationPartial", registrationModel);
+                }
+
+                ModelState.AddModelError("", "Registration attempt failed");
+
+            }
+            return PartialView("_UserRegistrationPartial", registrationModel);
+
         }
     }
 }
