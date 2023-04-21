@@ -16,10 +16,12 @@ namespace TechTreeMVCApplication.Areas.Admin.Controllers
     public class UsersToCategoryController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IDataFunctions _dataFunction;
 
-        public UsersToCategoryController(ApplicationDbContext context)
+        public UsersToCategoryController(ApplicationDbContext context, IDataFunctions dataFunction)
         {
             _context = context;
+            _dataFunction = dataFunction;
         }
 
         [HttpGet]
@@ -56,28 +58,7 @@ namespace TechTreeMVCApplication.Areas.Admin.Controllers
 
             var usersSelectedForCategoryToDelete = await GetUsersForCategoryToDelete(usersCategoryListModel.CategoryId);
 
-            using (var dbContextTransaction = await _context.Database.BeginTransactionAsync())
-            {
-                try
-                {
-
-                    _context.RemoveRange(usersSelectedForCategoryToDelete);
-                    await _context.SaveChangesAsync();
-
-                    if (usersSelectedForCategoryToAdd != null)
-                    {
-                        _context.AddRange(usersSelectedForCategoryToAdd);
-                        await _context.SaveChangesAsync();
-                    }
-                    await dbContextTransaction.CommitAsync();
-
-                }
-
-                catch (Exception)
-                {
-                    await dbContextTransaction.DisposeAsync();
-                }
-            }
+            await _dataFunction.UpdateUserCategoryEntityAsync(usersSelectedForCategoryToDelete, usersSelectedForCategoryToAdd);
 
             usersCategoryListModel.Users = await GetAllUsers();
 

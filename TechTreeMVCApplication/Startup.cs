@@ -34,11 +34,13 @@ namespace TechTreeMVCApplication
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
+            services.AddScoped<IDataFunctions, DataFunctions>();
             services.AddRazorPages();
             services.Configure<IdentityOptions>(opt =>
             {
                 opt.Password.RequireNonAlphanumeric = false;
             });
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

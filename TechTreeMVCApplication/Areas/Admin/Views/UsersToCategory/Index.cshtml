@@ -2,14 +2,14 @@
 @using TechTreeMVCApplication.Extensions
 @using TechTreeMVCApplication.Areas.Admin.Models
 
-<h3 class="mt-4">Add Members to Category</h3>
+<h3 class="mt-4 text-info">Add Members to Category</h3>
 <hr />
 <form id="MembersToCategory" asp-action="Index">
     <div class="row">
         <div class="col-md-4">
             <div class="form-group">
-                <h4>Category</h4>
-                <select id="CategoryId" name="CategoryId" class="form-control" asp-items="Model.ConvertToSelectList(1)">
+                <h4 class="text-info">Category</h4>
+                <select id="CategoryId" name="CategoryId" class="form-control text-info" asp-items="Model.ConvertToSelectList(1)">
                     <option value="0">--Please choose a Category--</option>
                 </select>
             </div>
@@ -21,7 +21,7 @@
     <hr />
     <div class="row">
         <div class="col-md-10">
-            <h4>Members</h4>
+            <h4 class="text-info">Members</h4>
             <div class="form-group">
                 <div id="UsersCheckList">
                     <partial name="_UsersListViewPartial" model="new UsersCategoryListModel {CategoryId=0,Users=null,UsersSelected=null } "/>
